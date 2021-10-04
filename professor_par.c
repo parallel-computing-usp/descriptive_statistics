@@ -91,7 +91,7 @@ void calcula_media_harmonica(double *matriz, double *vet, int lin, int col){
     int i,j;
     double soma;
     
-    #pragma omp parallel for schedule (dynamic, CHUNK)
+    // #pragma omp parallel for schedule (dynamic, CHUNK)
     for(i=0;i<col;i++){
         soma=0;
         for(j=0;j<lin;j++){
@@ -104,7 +104,6 @@ void calcula_media_harmonica(double *matriz, double *vet, int lin, int col){
 void calcula_mediana(double *matriz, double *vet, int lin, int col) {  
   int j;
   
-  #pragma omp parallel for schedule (dynamic, CHUNK)
   for (j = 0; j < col; j++) {
     vet[j] = matriz[((lin/2)*col)+j];
     if(!(lin%2))  {
@@ -150,7 +149,7 @@ void calcula_moda(double *matriz,double *moda,int lin, int col){
     int i,j;
     double *aux=(double *)malloc(lin*sizeof(double));
     
-    #pragma omp parallel for schedule (dynamic, CHUNK)
+    // #pragma omp parallel for schedule (dynamic, CHUNK)
     for(i=0;i<col;i++){
         for(j=0;j<lin;j++)
         {
@@ -167,7 +166,6 @@ void calcula_variancia(double *matriz, double *media,double *variancia, int lin,
     int i,j;
     double soma;
     
-    #pragma omp parallel for schedule (dynamic, CHUNK)
     for(i=0;i<col;i++){
         soma=0;
         for(j=0;j<lin;j++){
@@ -181,7 +179,6 @@ void calcula_desvio_padrao(double *variancia,double *dp, int col)
 {
     int i;
 
-    #pragma omp parallel for schedule (dynamic, CHUNK)
     for(i=0;i<col;i++){
         dp[i]=sqrt(variancia[i]);
     }  
@@ -191,7 +188,6 @@ void calcula_coeficiente_variacao(double *media,double *dp,double *cv, int col)
 {
     int i;
     
-    #pragma omp parallel for schedule (dynamic, CHUNK)
     for(i=0;i<col;i++){
         cv[i]=dp[i]/media[i];
     }  
