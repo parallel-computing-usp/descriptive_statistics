@@ -19,3 +19,14 @@ Tempo decorrido (paralelo): 59.019763 segundos
 71% mais rápido (tempo de execução)
 Speedup: (aprox.) 3,5
 Eficiência (8 threads de CPU): 0,43
+
+
+------------------------------------------------------------------------------
+PC Gustavo
+
+parallel - 91.5 s
+sequential - 200 s
+
+dynamic - 133.022073 segundos
+static -146.601926 segundos
+guided - 156 segundos

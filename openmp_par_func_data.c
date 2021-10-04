@@ -1,10 +1,11 @@
-
 #include<stdio.h>
 #include<stdlib.h>
 #include<math.h>
 #include<omp.h>
 
-#define CHUNK 4
+#define CHUNK_SIZE 4
+#define SCHEDULE_TYPE dynamic
+
 
 //Quicksort adaptado de //https://www.geeksforgeeks.org/quick-sort/
 int partition (double *arr, int low, int high, int C){
@@ -26,8 +27,8 @@ int partition (double *arr, int low, int high, int C){
             
             // swap arr[i] and arr[j]
             swap = arr[i*C];
-	    arr[i*C] = arr[j*C];
-	    arr[j*C] = swap;
+	        arr[i*C] = arr[j*C];
+	        arr[j*C] = swap;
         }
     }
     
@@ -54,7 +55,7 @@ void quicksort(double *arr, int low, int high, int C){
         quicksort(arr, pi + 1, high, C); // After pi
     }
     
-} // fim quicksort
+} // fim quicksortProject
 
 /* This function takes last element as pivot, places
    the pivot element at its correct position in sorted
@@ -67,6 +68,7 @@ void quicksort(double *arr, int low, int high, int C){
 void ordena_colunas(double *matriz, int lin, int col) {
   int j;
   
+  #pragma omp parallel for schedule (SCHEDULE_TYPE, CHUNK_SIZE) private (j)
   for (j = 0; j < col; j++) {
       //manda o endereco do primeiro elemento da coluna, limites inf e sup e a largura da matriz
       quicksort(&matriz[j], 0, lin-1, col);
@@ -77,7 +79,7 @@ void calcula_media(double *matriz, double *vet, int lin, int col){
     int i,j;
     double soma;
     
-    #pragma omp parallel for schedule (dynamic, CHUNK)
+    #pragma omp parallel for schedule (SCHEDULE_TYPE, CHUNK_SIZE) private (i, j, soma)
     for(i=0;i<col;i++){
         soma=0;
         for(j=0;j<lin;j++){
@@ -91,7 +93,7 @@ void calcula_media_harmonica(double *matriz, double *vet, int lin, int col){
     int i,j;
     double soma;
     
-    // #pragma omp parallel for schedule (dynamic, CHUNK)
+    #pragma omp parallel for schedule (SCHEDULE_TYPE, CHUNK_SIZE) private (i, j, soma)
     for(i=0;i<col;i++){
         soma=0;
         for(j=0;j<lin;j++){
@@ -103,7 +105,8 @@ void calcula_media_harmonica(double *matriz, double *vet, int lin, int col){
 
 void calcula_mediana(double *matriz, double *vet, int lin, int col) {  
   int j;
-  
+
+  #pragma omp parallel for schedule (SCHEDULE_TYPE, CHUNK_SIZE) private (j)
   for (j = 0; j < col; j++) {
     vet[j] = matriz[((lin/2)*col)+j];
     if(!(lin%2))  {
@@ -145,11 +148,11 @@ double moda_aux(double *matriz,int lin){
 }
 
 
-void calcula_moda(double *matriz,double *moda,int lin, int col){
+void calcula_moda(double *matriz, double *moda, int lin, int col){
     int i,j;
     double *aux=(double *)malloc(lin*sizeof(double));
     
-    // #pragma omp parallel for schedule (dynamic, CHUNK)
+    // #pragma omp parallel for schedule (SCHEDULE_TYPE, CHUNK_SIZE) lastprivate(aux) private (i, j)
     for(i=0;i<col;i++){
         for(j=0;j<lin;j++)
         {
@@ -158,7 +161,6 @@ void calcula_moda(double *matriz,double *moda,int lin, int col){
         moda[i]=moda_aux(aux,lin);
     }
     free(aux);
-
 }
 
 void calcula_variancia(double *matriz, double *media,double *variancia, int lin, int col)
@@ -166,6 +168,7 @@ void calcula_variancia(double *matriz, double *media,double *variancia, int lin,
     int i,j;
     double soma;
     
+    #pragma omp parallel for schedule (SCHEDULE_TYPE, CHUNK_SIZE) private (i, j, soma)
     for(i=0;i<col;i++){
         soma=0;
         for(j=0;j<lin;j++){
@@ -179,6 +182,7 @@ void calcula_desvio_padrao(double *variancia,double *dp, int col)
 {
     int i;
 
+    #pragma omp parallel for schedule (SCHEDULE_TYPE, CHUNK_SIZE) private (i)
     for(i=0;i<col;i++){
         dp[i]=sqrt(variancia[i]);
     }  
@@ -187,7 +191,8 @@ void calcula_desvio_padrao(double *variancia,double *dp, int col)
 void calcula_coeficiente_variacao(double *media,double *dp,double *cv, int col)
 {
     int i;
-    
+
+    #pragma omp parallel for schedule (SCHEDULE_TYPE, CHUNK_SIZE) private (i)
     for(i=0;i<col;i++){
         cv[i]=dp[i]/media[i];
     }  
@@ -216,9 +221,9 @@ int main(int argc,char **argv){
             fscanf(stdin, "%lf ",&(matriz[i*col+j])); //Lê a matriz
         }
     }
-    
+  
+    double inicio = omp_get_wtime();
 
-    
     ///////////////////////////////////////////////////////
     // início da região paralela utilizando 4 threads
     ///////////////////////////////////////////////////////
@@ -304,6 +309,9 @@ int main(int argc,char **argv){
 
         
     }
+
+    double fim = omp_get_wtime();
+    printf("\nTempo decorrido: %f segundos\n", fim - inicio);
 
     free(matriz); //Desaloca a matriz
     free(media); //Desaloca o vetor de media
