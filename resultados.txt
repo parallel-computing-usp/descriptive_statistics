@@ -1,0 +1,21 @@
+Entrada: Matriz 10000 x 1000
+Tempo decorrido (sequencial): 206.500482 segundos
+
+
+Versão do código com paralelismo apenas funcional (tasks) usando dependências
+--------------------------------------------------------------------------
+
+Tempo decorrido (paralelo): 159.258125 segundos
+
+23% mais rápido (tempo de execução)
+Speedup: (aprox.) 1,3
+Eficiência (8 threads de CPU): 0,16
+
+Versão do código com paralelismo funcional (tasks) e de dados 
+---------------------------------------------------------------------------
+
+Tempo decorrido (paralelo): 36.335022 segundos
+
+82% mais rápido (tempo de execução)
+Speedup: (aprox.) 5,7
+Eficiência (8 threads de CPU): 0,71
